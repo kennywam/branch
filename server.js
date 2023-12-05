@@ -10,7 +10,6 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS for all routes
 app.use(cors());
 
 mongoose.connect('mongodb://127.0.0.1:27017/branch', {
@@ -28,11 +27,9 @@ const Message = mongoose.model('Message', messagingSchema);
 
 app.use(bodyParser.json());
 
-// Modified endpoint to fetch messages based on userId
 app.get('/messages', async (req, res) => {
   const { userId } = req.query;
 
-  // Fetch messages with the specified userId from the database
   const messages = await Message.find({ userId }).sort({ timestamp: 1 });
   res.json(messages);
 });
