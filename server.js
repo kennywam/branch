@@ -26,7 +26,6 @@ const messagingSchema = new mongoose.Schema({
   userId: String,
   messageBody: String,
   timestamp: { type: Date, default: Date.now },
-  isResponse: { type: Boolean, default: false },
 });
 
 const Message = mongoose.model('Message', messagingSchema);
@@ -37,10 +36,9 @@ app.get('/messages', async (req, res) => {
   try {
     const { userId } = req.query;
 
-    const messages = await Message.find({ userId, isResponse: { $ne: true } }).sort({ timestamp: 1 });
-    const responses = await Message.find({ userId, isResponse: true }).sort({ timestamp: 1 });
+    const messages = await Message.find({ userId }).sort({ timestamp: 1 });
 
-    const allMessages = [...messages, ...responses];
+    const allMessages = [...messages];
 
     res.json(allMessages);
   } catch (error) {
@@ -52,7 +50,7 @@ app.get('/messages', async (req, res) => {
 app.post('/send-response', async (req, res) => {
   try {
     const { userId, responseBody } = req.body;
-    const newResponse = new Message({ userId, messageBody: responseBody, isResponse: true });
+    const newResponse = new Message({ userId, messageBody: responseBody });
     await newResponse.save();
 
     io.emit('newResponse', newResponse);
@@ -64,20 +62,11 @@ app.post('/send-response', async (req, res) => {
   }
 });
 
-
 io.on('connection', (socket) => {
   console.log('A user connected');
 
   socket.on('disconnect', () => {
     console.log('User disconnected');
-  });
-
-  socket.on('sendMessage', async (data) => {
-    const { userId, messageBody } = data;
-    const newMessage = new Message({ userId, messageBody });
-    await newMessage.save();
-
-    io.emit('newMessage', newMessage);
   });
 
   socket.on('sendResponse', async (data) => {
