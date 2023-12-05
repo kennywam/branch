@@ -34,12 +34,20 @@ const Message = mongoose.model('Message', messagingSchema);
 app.use(bodyParser.json());
 
 app.get('/messages', async (req, res) => {
-  const { userId } = req.query;
+  try {
+    const { userId } = req.query;
+    console.log('Received request for messages with userId:', userId);
 
-  // Adjust the field name in the query
-  const messages = await Message.find({ 'User ID': userId }).sort({ timestamp: 1 });
-  res.json(messages);
+    const messages = await Message.find({ userId }).sort({ timestamp: 1 });
+    console.log('Retrieved messages:', messages);
+
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
+
 
 app.post('/respond', async (req, res) => {
   const { userId, messageBody } = req.body;
