@@ -80,10 +80,11 @@
     </form>
   </div>
 
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const socket = io();
+<script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+
+<script>
+      document.addEventListener('DOMContentLoaded', () => {
+      const socket = io("http://localhost:3000", { transports: ["websocket"] });
       const userIdHeader = document.getElementById('userIdHeader');
       const messagesDiv = document.getElementById('messages');
       const messageForm = document.getElementById('messageForm');
@@ -112,16 +113,16 @@
         userIdHeader.textContent += userId;
       });
 
-      function loadExistingMessages() {
-        fetch('http://localhost:3000/messages')
-          .then(response => response.json())
-          .then(messages => {
-            messages.forEach(message => {
-              addMessageToDOM(message);
-            });
-          })
-          .catch(error => console.error('Error fetching messages:', error));
-      }
+   function loadExistingMessages() {
+  fetch('http://localhost:3000/messages', { mode: 'cors' })
+    .then(response => response.json())
+    .then(messages => {
+      messages.forEach(message => {
+        addMessageToDOM(message);
+      });
+    })
+    .catch(error => console.error('Error fetching messages:', error));
+}
 
       loadExistingMessages();
     });

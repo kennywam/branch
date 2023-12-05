@@ -7,7 +7,12 @@ const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
@@ -17,8 +22,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/branch', {
   useUnifiedTopology: true,
 });
 
+// Adjust the schema to match the MongoDB field names
 const messagingSchema = new mongoose.Schema({
-  userId: String,
+  userId: String, // Adjust to match the field name in your MongoDB collection
   messageBody: String,
   timestamp: { type: Date, default: Date.now },
 });
@@ -30,14 +36,15 @@ app.use(bodyParser.json());
 app.get('/messages', async (req, res) => {
   const { userId } = req.query;
 
-  const messages = await Message.find({ userId }).sort({ timestamp: 1 });
+  // Adjust the field name in the query
+  const messages = await Message.find({ 'User ID': userId }).sort({ timestamp: 1 });
   res.json(messages);
 });
 
 app.post('/respond', async (req, res) => {
   const { userId, messageBody } = req.body;
 
-  const newMessage = new Message({ userId, messageBody });
+  const newMessage = new Message({ 'User ID': userId, messageBody });
   await newMessage.save();
 
   io.emit('newMessage', newMessage);
