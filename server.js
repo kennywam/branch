@@ -37,7 +37,6 @@ app.get('/messages', async (req, res) => {
   try {
     const { userId } = req.query;
 
-    // Fetch both messages and responses
     const messages = await Message.find({ userId, isResponse: { $ne: true } }).sort({ timestamp: 1 });
     const responses = await Message.find({ userId, isResponse: true }).sort({ timestamp: 1 });
 
