@@ -48,5 +48,3 @@ npm start
 
 - The application uses Socket.io for real-time communication between the server and clients.
 - Messages and responses are stored in a MongoDB database.
-
-Feel free to reach out if you have any questions or encounter any issues!
